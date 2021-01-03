@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.Controller">
+   <center>
+      <TableView fx:id="tv" onMouseClicked="#valueSelected" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <columns>
+          <TableColumn fx:id="descCol" prefWidth="75.0" text="Description" />
+          <TableColumn fx:id="amtCol" prefWidth="75.0" text="Value" />
+            <TableColumn fx:id="dateCol" prefWidth="75.0" text="Date" />
+            <TableColumn fx:id="typeCol" prefWidth="75.0" text="Type" />
+        </columns>
+         <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+         </columnResizePolicy>
+      </TableView>
+   </center>
+   <bottom>
+      <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+        <items>
+          <Button fx:id="add" mnemonicParsing="false" onAction="#addClick" text="Add" />
+            <Button fx:id="edit" disable="true" mnemonicParsing="false" onAction="#editClick" text="Edit" />
+            <Button fx:id="delete" disable="true" mnemonicParsing="false" onAction="#deleteClick" text="Delete" />
+        </items>
+      </ToolBar>
+   </bottom>
+   <top>
+      <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+         <items>
+            <DatePicker fx:id="fromDate" onAction="#dateChange" promptText="From" />
+            <DatePicker fx:id="toDate" onAction="#dateChange" promptText="To" />
+            <Label text="Total:">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <Label fx:id="totAmt">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font></Label>
+         </items>
+      </ToolBar>
+   </top>
+   <right>
+      <BarChart fx:id="chart" prefHeight="320.0" prefWidth="316.0" BorderPane.alignment="CENTER">
+        <xAxis>
+          <CategoryAxis side="BOTTOM" />
+        </xAxis>
+        <yAxis>
+          <NumberAxis side="LEFT" />
+        </yAxis>
+      </BarChart>
+   </right>
+</BorderPane>

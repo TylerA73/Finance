@@ -1,5 +1,6 @@
 package sample;
 
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -15,8 +16,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.util.Callback;
-
-import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.*;
@@ -133,15 +132,21 @@ public class Controller implements Initializable {
         // If a Transaction was not returned, then just do nothing
         Optional<Transaction> transaction = dialog.showAndWait();
         if (transaction.isPresent()) {
-            // Try to insert a new transaction into the database
-            // If there is a problem, just notify the user
-            try {
-                db.insertTransaction(transaction.get());
-                transactions.clear();
-                transactions.addAll(db.findTransactions(toDate.getValue(), fromDate.getValue()));
-            } catch (Exception e) {
-                createAlert(Alert.AlertType.ERROR, "Transaction could not be created.");
-            }
+            Platform.runLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    // Try to insert a new transaction into the database
+                    // If there is a problem, just notify the user
+                    try {
+                        db.insertTransaction(transaction.get());
+                        transactions.clear();
+                        transactions.addAll(db.findTransactions(toDate.getValue(), fromDate.getValue()));
+                    } catch (Exception e) {
+                        createAlert(Alert.AlertType.ERROR, "Transaction could not be created.");
+                    }
+                }
+            });
         }
     }
 
@@ -233,18 +238,25 @@ public class Controller implements Initializable {
         // If it is null, just don't do anything to it
         Optional<Transaction> transaction = dialog.showAndWait();
         if (transaction.isPresent()) {
-            // Try to update the transaction
-            // If there is a problem updating, notify the user
-            try {
-                db.updateTransaction(transaction.get());
-                transactions.clear();
-                transactions.addAll(db.findTransactions(toDate.getValue(), fromDate.getValue()));
-                selectedTrans = null;
-                delete.setDisable(true);
-                edit.setDisable(true);
-            } catch (Exception e) {
-                createAlert(Alert.AlertType.ERROR, "\"" + selectedTrans.getDescription() + "\" could not be updated.");
-            }
+            Platform.runLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    // Try to update the transaction
+                    // If there is a problem updating, notify the user
+                    try {
+                        db.updateTransaction(transaction.get());
+                        transactions.clear();
+                        transactions.addAll(db.findTransactions(toDate.getValue(), fromDate.getValue()));
+                        selectedTrans = null;
+                        delete.setDisable(true);
+                        edit.setDisable(true);
+                    } catch (Exception e) {
+                        createAlert(Alert.AlertType.ERROR, "\"" + selectedTrans.getDescription() + "\" could not be updated.");
+                    }
+                }
+            });
+
         }
     }
 
@@ -267,18 +279,25 @@ public class Controller implements Initializable {
         // If they click "No", then they did not mean to, or have changed their mind
         // We will just go ahead and close the alert, and do nothing with that transaction
         if (alert.getResult() == ButtonType.YES) {
-            // We will try to delete the transaction from the database
-            // If there is a problem, we will notify the user that there was an issue
-            try {
-                db.deleteTransaction(selectedTrans);
-                transactions.clear();
-                transactions.addAll(db.findTransactions(toDate.getValue(), fromDate.getValue()));
-                selectedTrans = null;
-                delete.setDisable(true);
-                edit.setDisable(true);
-            } catch (Exception e) {
-                createAlert(Alert.AlertType.ERROR, "\"" + selectedTrans.getDescription() + "\" could not be deleted.");
-            }
+            Platform.runLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    // We will try to delete the transaction from the database
+                    // If there is a problem, we will notify the user that there was an issue
+                    try {
+                        db.deleteTransaction(selectedTrans);
+                        transactions.clear();
+                        transactions.addAll(db.findTransactions(toDate.getValue(), fromDate.getValue()));
+                        selectedTrans = null;
+                        delete.setDisable(true);
+                        edit.setDisable(true);
+                    } catch (Exception e) {
+                        createAlert(Alert.AlertType.ERROR, "\"" + selectedTrans.getDescription() + "\" could not be deleted.");
+                    }
+                }
+            });
+
         } else {
             selectedTrans = null;
             delete.setDisable(true);
@@ -293,14 +312,20 @@ public class Controller implements Initializable {
      */
     @FXML
     private void dateChange(ActionEvent event) {
-        // Try to fetch a list of transactions using the new date(s)
-        // If there is a problem, notify the user
-        try {
-            transactions.clear();
-            transactions.addAll(db.findTransactions(toDate.getValue(), fromDate.getValue()));
-        } catch (Exception e) {
-            createAlert(Alert.AlertType.ERROR, "\"" + selectedTrans.getDescription() + "\" could not be fetched.");
-        }
+        Platform.runLater(new Runnable() {
+
+            @Override
+            public void run() {
+                // Try to fetch a list of transactions using the new date(s)
+                // If there is a problem, notify the user
+                try {
+                    transactions.clear();
+                    transactions.addAll(db.findTransactions(toDate.getValue(), fromDate.getValue()));
+                } catch (Exception e) {
+                    createAlert(Alert.AlertType.ERROR, "\"" + selectedTrans.getDescription() + "\" could not be fetched.");
+                }
+            }
+        });
     }
 
     /**
@@ -450,6 +475,7 @@ public class Controller implements Initializable {
         currentSeries.getData().addAll(incomeData, essentialData, nonEssentialData, fixedData);
         currentSeries.setName("Current");
         chart.getData().add(currentSeries);
+        chart.setAnimated(false);
 
         types = FXCollections.observableArrayList();
         transactions = FXCollections.observableArrayList();
